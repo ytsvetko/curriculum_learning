@@ -8,7 +8,7 @@ import math
 parser = argparse.ArgumentParser()
 parser.add_argument("--in_feature_data_dir", default="./data/train")
 parser.add_argument("--out_feature_data_dir", default="./data-standardized/train")
-parser.add_argument("--in_feature_name", default="imageability")
+parser.add_argument("--in_feature_name", default="degree")
 args = parser.parse_args()
 
 def ExtractSum(in_file):

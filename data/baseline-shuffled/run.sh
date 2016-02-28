@@ -30,36 +30,27 @@ function eval_model {
   
   /usr0/home/ytsvetko/usr1/projects/qvec/qvec_cca.py --in_vectors ${vectors} --in_oracle /usr0/home/ytsvetko/usr1/projects/qvec/oracles/semcor_noun_verb.supersenses.en >> ${log_file}.qvec_cca
   
-  cd /usr1/home/ytsvetko/projects/curric/downstream/sentiment-analysis/
-  ./eval.sh ${vectors} >> ${log_file}.senti
+  /usr1/home/ytsvetko/projects/curric/downstream/sentiment-analysis/eval.sh ${vectors} >> ${log_file}.senti
   
-  cd /usr1/home/ytsvetko/projects/curric/downstream/newsgroups/
-  ./eval.sh ${vectors} >> ${log_file}.ng
+  /usr1/home/ytsvetko/projects/curric/downstream/newsgroups/eval.sh ${vectors} >> ${log_file}.ng
   
-  cd /usr1/home/ytsvetko/projects/curric/wordsim/
-  ./eval.sh ${vectors} >> ${log_file}.wordsim'
+  /usr1/home/ytsvetko/projects/curric/wordsim/eval.sh ${vectors} >> ${log_file}.wordsim'
  
-  cd /usr1/home/ytsvetko/projects/curric/downstream/internal-lstm-parser
-  ./eval.sh ${vectors} >> ${log_file}.parse &
+  /usr1/home/ytsvetko/projects/curric/downstream/internal-lstm-parser/eval.sh ${vectors} >> ${log_file}.parse
 
-  #cd /usr1/home/ytsvetko/projects/curric/downstream/ner/
-  #./eval.sh ${vectors} >> ${log_file}.ner 
+  comment='
+  /usr1/home/ytsvetko/projects/curric/downstream/ner/eval.sh ${vectors} >> ${log_file}.ner &
   
-  cd ${currdir}
+  /usr1/home/ytsvetko/projects/curric/downstream/postag//eval.sh ${vectors} >> ${log_file}.pos '
+
+  #cd ${currdir}
+  
 }
-#cbow average
-eval_model /usr1/home/ytsvetko/projects/curric/data/baseline-shuffled/baseline-shuffled.wiki9.cbow.vectors  $PWD/log/cbow9.log
 
-#cbow best
-eval_model /usr1/home/ytsvetko/projects/curric/data/baseline-shuffled/baseline-shuffled.wiki1.cbow.vectors  $PWD/log/cbow1.log
-
-exit
-
-#for i in 1 2 3 4 5 6 7 8 9 0 ; do 
-for i in 6 7 8 9 0 ; do 
-   echo baseline-shuffled.wiki${i}.cbow.vectors
-  eval_model /usr1/home/ytsvetko/projects/curric/data/baseline-shuffled/baseline-shuffled.wiki${i}.cbow.vectors  $PWD/log/cbow${i}.log 
-  
+for i in 1 2 3 4 5 6 7 8 9 0 ; do 
+  echo baseline-shuffled.wiki${i}.cbow.vectors
+  eval_model baseline-shuffled.wiki${i}.cbow.vectors  $PWD/log/cbow/cbow${i}.log 
+ comment=' 
   echo baseline-shuffled.wiki${i}.sg.vectors 
   eval_model /usr1/home/ytsvetko/projects/curric/data/baseline-shuffled/baseline-shuffled.wiki${i}.sg.vectors  $PWD/log/sg${i}.log
 
@@ -67,7 +58,7 @@ for i in 6 7 8 9 0 ; do
   eval_model /usr1/home/ytsvetko/projects/curric/data/baseline-shuffled/baseline-shuffled.wiki${i}.cwindow.vectors  $PWD/log/cwindow${i}.log
 
   echo baseline-shuffled.wiki${i}.sskip.vectors 
-  eval_model /usr1/home/ytsvetko/projects/curric/data/baseline-shuffled/baseline-shuffled.wiki${i}.sskip.vectors  $PWD/log/sskip${i}.log
+  eval_model /usr1/home/ytsvetko/projects/curric/data/baseline-shuffled/baseline-shuffled.wiki${i}.sskip.vectors  $PWD/log/sskip${i}.log'
 done
 
 

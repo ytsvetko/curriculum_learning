@@ -27,12 +27,26 @@ function eval_model {
   cd ${currdir}
 }
 
-cbow=/usr1/home/ytsvetko/projects/curric/curriculum/hyperopt_august2013_mod_13_2016-2-5--qvec_cca-cbow-50-diversity-new/17db81720d0a0420f6f7177f75510c1c/word_vectors
-eval_model ${cbow} /usr1/home/ytsvetko/projects/curric/curriculum/log/hyperopt_august2013_mod_13_2016-2-5--qvec_cca-cbow-50-diversity-new.eval
+
+
+cbow=/usr1/home/ytsvetko/projects/curric/curriculum/hyperopt_august2013_mod_13_2016-2-4--qvec_cca-cbow-50-diversity-standardized/57fabcc79cc45b2714a2adf541b96da2/word_vectors
+eval_model ${cbow} /usr1/home/ytsvetko/projects/curric/curriculum/log/hyperopt_august2013_mod_13_2016-2-4--qvec_cca-cbow-50-diversity-standardized.eval
 
 exit
 
-### 100 iterations
+cbow=/usr1/home/ytsvetko/projects/curric/curriculum/hyperopt_august2013_mod_13_2016-2-8--qvec_cca-cbow-50-prototypicality-standardized/bd33d926333d1d70ee054f3d008f31b7/word_vectors
+eval_model ${cbow} /usr1/home/ytsvetko/projects/curric/curriculum/log/hyperopt_august2013_mod_13_2016-2-8--qvec_cca-cbow-50-prototypicality-standardized.eval
+
+cbow=/usr1/home/ytsvetko/projects/curric/curriculum/hyperopt_august2013_mod_13_2016-2-8--qvec_cca-cbow-50-prototypicality/ac338a2fd79e76c0a3c12b676f31f5df/word_vectors
+eval_model ${cbow} /usr1/home/ytsvetko/projects/curric/curriculum/log/hyperopt_august2013_mod_13_2016-2-8--qvec_cca-cbow-50-prototypicality.eval
+
+
+
+
+cbow=/usr1/home/ytsvetko/projects/curric/curriculum/hyperopt_august2013_mod_13_2016-2-5--qvec_cca-cbow-50-diversity-new/17db81720d0a0420f6f7177f75510c1c/word_vectors
+eval_model ${cbow} /usr1/home/ytsvetko/projects/curric/curriculum/log/hyperopt_august2013_mod_13_2016-2-5--qvec_cca-cbow-50-diversity-new.eval
+
+## 100 iterations
 cbow=/usr1/home/ytsvetko/projects/curric/curriculum/hyperopt_august2013_mod_13_2016-2-4--qvec_cca-cbow-100-diversity-standardized/00025bb43d2144b3fac051fa38cfe312/word_vectors   
 eval_model ${cbow} /usr1/home/ytsvetko/projects/curric/curriculum/log/hyperopt_august2013_mod_13_2016-2-4--qvec_cca-cbow-100-diversity-standardized.eval
 

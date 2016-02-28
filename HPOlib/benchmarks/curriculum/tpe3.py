@@ -7,13 +7,22 @@ import sys
 import glob
 import collections
 import os
+import numpy as np
 
 W2V_MIN_COUNT="10"
-FEATURE_DIR="/usr1/home/ytsvetko/projects/curric/features/data/train" #data-standardized
+FEATURE_DIR="/usr1/home/ytsvetko/projects/curric/features/data-standardized/train" 
 TRAIN_DATA_DIR="/usr1/home/ytsvetko/projects/curric/data/train"
-W2V="/usr0/home/ytsvetko/tools/word2vec" #"/usr1/home/ytsvetko/tools/wang2vec/word2vec"
-QVEC="/usr0/home/ytsvetko/usr1/projects/qvec/qvec_cca.py" # TODO other optimization functions
+W2V="/usr0/home/ytsvetko/tools/word2vec" 
+WANG2V="/usr1/home/ytsvetko/tools/wang2vec/weightedWord2vec" 
+QVEC="/usr0/home/ytsvetko/usr1/projects/qvec/qvec_cca.py" 
 QVEC_ORACLE="/usr0/home/ytsvetko/usr1/projects/qvec/oracles/semcor_noun_verb.supersenses.en"
+NG="/usr1/home/ytsvetko/projects/curric/downstream/newsgroups/eval.sh"
+NER="/usr1/home/ytsvetko/projects/curric/downstream/ner/eval.sh"
+POSTAG="/usr1/home/ytsvetko/projects/curric/downstream/postag/eval.sh"
+SENTI="/usr1/home/ytsvetko/projects/curric/downstream/sentiment-analysis/eval.sh"
+PARSE="/usr1/home/ytsvetko/projects/curric/downstream/internal-lstm-parser/eval.sh"
+
+WEIGHTED_W2V=False
 
 def LoadScoredData(params):
   # key = (train_filename, line_num), value = {feature: feature_value * feature_weight}
@@ -37,15 +46,42 @@ def LoadScoredData(params):
       result.append((score_dict[(train_base_filename, line_num)], line))
   return result
       
-  
+
+def NormalizeScores(scores):
+  scores = np.array(scores)
+  #scores = np.exp(np.array(scores))
+  scores = 1.0/(1.0+np.exp(-scores)) # Sigmoid
+  scores = scores / np.sum(scores) # Normalize to probabilities
+  scores = scores * len(scores)*1.2 # Get closer to 1 
+  return scores
+   
 def SortTrainingData(scored_data, sorted_training_data_path):
   out_file = open(sorted_training_data_path, "w")
+  lines = []
+  scores = []
   for score, line in sorted(scored_data, reverse = True):
-    out_file.write(line)
+    lines.append(line)
+    scores.append(score)
+  scores = NormalizeScores(scores)
+  if WEIGHTED_W2V:
+    for score, line in zip(scores, lines):
+      out_file.write("{}\t{}".format(str(score), line))
+  else:
+    for line in lines:
+      out_file.write(line)
+    score_file = open(sorted_training_data_path + ".scores", "w")
+    for score in scores:
+      score_file.write(str(score) + "\n")
 
 def PrepareVectors(sorted_training_data_path, word_vectors_path, params_hash):
   # Run word-to-vec
-  w2v_command = [W2V, "-train", sorted_training_data_path, "-output", word_vectors_path,
+  if WEIGHTED_W2V:
+    w2v_command = [WANG2V, "-train", sorted_training_data_path, "-output", word_vectors_path,
+                 "-type", "0", "-size", "100", "-window", "5", "-negative", "10", "-hs", "0",
+                 "-sample", "1e-4", "-threads", "20", "-iter", "1", "-min-count", W2V_MIN_COUNT,
+                 "-binary", "0", ] 
+  else:
+    w2v_command = [W2V, "-train", sorted_training_data_path, "-output", word_vectors_path,
                  "-cbow", "1", "-size", "100", "-window", "5", "-negative", "10", "-hs", "0",
                  "-sample", "1e-4", "-threads", "1", "-iter", "1", "-min-count", W2V_MIN_COUNT,
                  "-binary", "0", ] #"-cbow", "0", "-type", "3"
@@ -61,24 +97,29 @@ def PrepareVectors(sorted_training_data_path, word_vectors_path, params_hash):
 
 
 def RunEval(word_vectors_path, params_hash):
-  # Run QVec
-  qvec_command = [QVEC, "--in_vectors", word_vectors_path, "--in_oracle", QVEC_ORACLE]
+  # Run Qvec_CCA
+  #eval_command = [QVEC, "--in_vectors", word_vectors_path, "--in_oracle", QVEC_ORACLE]
+  #eval_command = [SENTI, word_vectors_path]
+  #eval_command = [NG, word_vectors_path]
+  #eval_command = [PARSE, word_vectors_path]
+  #eval_command = [NER, word_vectors_path]
+  eval_command = [POSTAG, word_vectors_path]
   stdout_filename = params_hash + ".qvec.out"
   stderr_filename = params_hash + ".qvec.err"
   with open(stdout_filename, "w") as stdout_file:
     with open(stderr_filename, "w") as stderr_file:
-      print(" ".join(qvec_command))
-      exit_code = subprocess.call(qvec_command, stdout=stdout_file, stderr=stderr_file)
+      print(" ".join(eval_command))
+      exit_code = subprocess.call(eval_command, stdout=stdout_file, stderr=stderr_file)
       if exit_code != 0:
-        print("Error running: qvec")
-        raise subprocess.CalledProcessError(exit_code, " ".join(qvec_command))
+        print("Error running: evaluation")
+        raise subprocess.CalledProcessError(exit_code, " ".join(eval_command))
   output = open(stdout_filename).readlines()[-1] 
   return -float(output.split()[-1])
 
 
 def Eval(params, params_hash):
-  sorted_training_data_path = os.path.join(".", params_hash, "sorted_training_data")
-  word_vectors_path = os.path.join(".", params_hash, "word_vectors")
+  sorted_training_data_path = os.path.join(params_hash, "sorted_training_data")
+  word_vectors_path = os.path.join(params_hash, "word_vectors")
   
   print("Loading data")
   scored_data = LoadScoredData(params)

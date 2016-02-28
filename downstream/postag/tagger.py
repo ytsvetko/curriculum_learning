@@ -133,7 +133,7 @@ assert parameters['pos_dim'] == 0 or parameters['data_type'] in ['ner', 'german'
 
 # Initialize experiment
 timestr = time.strftime("%Y%m%d-%H-%M-")
-experiment_name = timestr+parameters['data_type']+"-"+os.path.basename(parameters['ext_emb']) #get_experiment_name(OrderedDict([(k, v) for k, v in parameters.items() if k not in ['char_model_path', 'tag_scheme', 'mask', 'p_char', 'p_token']]))  # , 'zeros'
+experiment_name = parameters['data_type']+"-"+os.path.basename(os.path.dirname(parameters['ext_emb']))+"-"+os.path.basename(parameters['ext_emb']) #get_experiment_name(OrderedDict([(k, v) for k, v in parameters.items() if k not in ['char_model_path', 'tag_scheme', 'mask', 'p_char', 'p_token']]))  # , 'zeros'
 experiment_name = experiment_name.replace('comment=', 'com=')
 experiment = Experiment(
     name=experiment_name,
